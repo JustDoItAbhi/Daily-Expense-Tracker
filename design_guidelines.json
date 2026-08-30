@@ -1,0 +1,220 @@
+{
+  "app_name": "Daily Expense Tracker",
+  "personality": "1 iOS-Native Clean",
+  "personality_one_liner": "A trustworthy, highly readable, and clear financial utility that feels native, calm, and effortlessly responsive.",
+  "color": {
+    "light": {
+      "surface": "#FFFFFF",
+      "onSurface": "#171918",
+      "surfaceSecondary": "#F5F7F6",
+      "onSurfaceSecondary": "#2C302E",
+      "surfaceTertiary": "#EBEDEC",
+      "onSurfaceTertiary": "#454A47",
+      "surfaceInverse": "#171918",
+      "onSurfaceInverse": "#FFFFFF",
+      "brand": "#1F6D4A",
+      "brandPrimary": "#237A53",
+      "onBrandPrimary": "#FFFFFF",
+      "brandSecondary": "#CBE4D7",
+      "onBrandSecondary": "#11402A",
+      "brandTertiary": "#E4F1EA",
+      "onBrandTertiary": "#175237",
+      "success": "#2D8A5E",
+      "onSuccess": "#FFFFFF",
+      "warning": "#C78E1A",
+      "onWarning": "#FFFFFF",
+      "error": "#D14343",
+      "onError": "#FFFFFF",
+      "info": "#475569",
+      "onInfo": "#FFFFFF",
+      "border": "#E2E5E4",
+      "borderStrong": "#B8C2BE",
+      "divider": "#E8EBE9"
+    },
+    "dark": {
+      "surface": "#121413",
+      "onSurface": "#F4F6F5",
+      "surfaceSecondary": "#1E201F",
+      "onSurfaceSecondary": "#D8DBDA",
+      "surfaceTertiary": "#292C2B",
+      "onSurfaceTertiary": "#A8ADAB",
+      "surfaceInverse": "#FFFFFF",
+      "onSurfaceInverse": "#121413",
+      "brand": "#309669",
+      "brandPrimary": "#41A679",
+      "onBrandPrimary": "#0A291A",
+      "brandSecondary": "#15422D",
+      "onBrandSecondary": "#A5D6BF",
+      "brandTertiary": "#113022",
+      "onBrandTertiary": "#8DC4AA",
+      "success": "#36A370",
+      "onSuccess": "#000000",
+      "warning": "#E2A422",
+      "onWarning": "#000000",
+      "error": "#E85A5A",
+      "onError": "#000000",
+      "info": "#94A3B8",
+      "onInfo": "#000000",
+      "border": "#2D302F",
+      "borderStrong": "#4A524F",
+      "divider": "#262928"
+    }
+  },
+  "typography": {
+    "displayFontFamily": "Space Grotesk",
+    "textFontFamily": "Plus Jakarta Sans",
+    "scale": {
+      "sm": 12,
+      "base": 14,
+      "lg": 16,
+      "xl": 20,
+      "2xl": 24
+    }
+  },
+  "spacing": {
+    "rule": "Generous vertical breathing room. Cards never flush to screen edge (use lg outer padding). Maintain thumb zone by keeping CTA buttons sticky at bottom.",
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24,
+    "2xl": 32,
+    "3xl": 48
+  },
+  "radius_tokens": {
+    "sm": 6,
+    "md": 12,
+    "lg": 20,
+    "pill": 999
+  },
+  "shadow_tier": "1",
+  "navigation": "bottom_tabs",
+  "icon_set": "Phosphor",
+  "glassmorphism": {
+    "enabled": true,
+    "do's": [
+      "Bottom tab bar when content scrolls behind",
+      "Sticky headers over scrolling content (like filters in History)",
+      "Floating action buttons (FAB)",
+      "Hero card overlay (frosted glass sitting on the green abstract photo backdrop)"
+    ],
+    "dont's": [
+      "Every button",
+      "List rows",
+      "Body content sections",
+      "Form inputs"
+    ]
+  },
+  "platform_libraries": {
+    "glass": {
+      "ios": "expo-glass-effect",
+      "android": "expo-blur",
+      "low_end_android_fallback": "solid surfaceSecondary"
+    },
+    "image": "expo-image",
+    "blur": "expo-blur",
+    "bottom_sheet": "@gorhom/bottom-sheet",
+    "animation": "react-native-reanimated",
+    "gesture": "react-native-gesture-handler"
+  },
+  "screens": [
+    {
+      "name": "Auth",
+      "purpose": "Secure entry and registration into the tracker.",
+      "states": {
+        "loading": "Centered spinner",
+        "empty": "N/A",
+        "error": "Readable message + Retry button above inputs"
+      },
+      "layout": "Minimalist plant background image (auth_bg) filling top half with a gradient scrim fading to bottom. Form container (surfaceSecondary) anchored at bottom with lg padding. Brand logo at top left. Email/password fields with label above, and full-width brandPrimary sticky button at the bottom."
+    },
+    {
+      "name": "Dashboard",
+      "purpose": "Immediate overview of today's spending, budget status, and recent transactions.",
+      "states": {
+        "loading": "Skeleton UI for hero card and lists",
+        "empty": "Empty state illustration (empty_state) + 'No expenses today' + 'Add your first expense' CTA",
+        "error": "Full screen error state + Retry CTA"
+      },
+      "layout": "Lead with a 'Hero' spending card using the abstract green image (hero_card_bg) layered with a vertical dark scrim (Layer 0: image, Layer 1: linear gradient 0% to 70% surfaceInverse, Layer 2: Oversized display typography for balance, budget status badge). Below hero, show a compact 'charts before numbers' Weekly Summary Donut Chart. Follow with Recent Expenses list grouped by date (Today, Yesterday) using brandTertiary rounded icon containers for categories. Include a Floating Action Button (FAB) for 'Add Expense' above the glass bottom tab bar."
+    },
+    {
+      "name": "Add Expense (Sheet)",
+      "purpose": "Frictionless and immediate entry of a new transaction.",
+      "states": {
+        "loading": "Spinner on the Save button during submit",
+        "empty": "N/A",
+        "error": "Inline text error below specific failed field"
+      },
+      "layout": "Presented as a bottom sheet. Oversized 'Space Grotesk' keypad-driven or text input for the amount at the top, centered. Below it, an 8-tile Category icon grid (no dropdowns, immediate tap selection). Fields for Notes and Date Picker below. A sticky 'Save Transaction' primary button anchored at the bottom edge above the keyboard."
+    },
+    {
+      "name": "History",
+      "purpose": "Searchable archive of all spending with easy filtering.",
+      "states": {
+        "loading": "Skeleton rows",
+        "empty": "Icon + 'No expenses match your filters' + 'Clear filters' CTA",
+        "error": "Readable message + Retry button"
+      },
+      "layout": "Glassmorphic sticky header containing horizontal scrolling filter chips (All, This Week, Month, Income, Expense). Main content is a continuous scrolling list of transactions grouped by date headers. Each list row is a minimum 56pt height with a category icon, title, date, and right-aligned amount."
+    },
+    {
+      "name": "Statistics",
+      "purpose": "Detailed visual analysis of spending habits across timeframes.",
+      "states": {
+        "loading": "Spinner in chart area",
+        "empty": "Illustration + 'Not enough data to show charts' + 'Log an expense' CTA",
+        "error": "Readable message + Retry button"
+      },
+      "layout": "Sticky header with a Week/Month/Year segmented control. Top half contains a large Donut Chart (Victory Native/Gifted Charts) showing category splits. Bottom half lists the categories sorted by highest spend to lowest, with amount and percentage bars."
+    },
+    {
+      "name": "Settings",
+      "purpose": "Configuration, profile management, and app preferences.",
+      "states": {
+        "loading": "Centered spinner",
+        "empty": "N/A",
+        "error": "Toast or inline error for failed updates"
+      },
+      "layout": "Standard iOS-native settings layout. Scrollable list grouped by sections (Profile, Preferences, Security, Admin). Use surfaceSecondary cards for groups, divider tokens between rows. Each row has a leading icon in a brandTertiary container, label, and trailing chevron."
+    },
+    {
+      "name": "Admin Dashboard",
+      "purpose": "Centralized management of users, global categories, and platform expenses.",
+      "states": {
+        "loading": "Skeleton lists",
+        "empty": "Illustration + 'No data found' + Action button",
+        "error": "Readable message + Retry"
+      },
+      "layout": "Utility-first dashboard layout. Top summary cards showing total users, total expenses, active categories. Tabbed or segmented view below to switch between Users, Expenses, and Categories management lists."
+    }
+  ],
+  "images": {
+    "hero_card_bg": {
+      "url": "https://images.unsplash.com/photo-1689443111287-5c2e129ec756?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzl8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMGdyZWVuJTIwZ2VvbWV0cmljJTIwdGV4dHVyZXxlbnwwfHx8fDE3ODgxMjA1MjV8MA&ixlib=rb-4.1.0&q=85",
+      "dark": "https://images.unsplash.com/photo-1689443111287-5c2e129ec756?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1Nzl8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMGdyZWVuJTIwZ2VvbWV0cmljJTIwdGV4dHVyZXxlbnwwfHx8fDE3ODgxMjA1MjV8MA&ixlib=rb-4.1.0&q=85",
+      "alt": "Abstract layers of smooth dark green geometric texture"
+    },
+    "empty_state": {
+      "url": "https://images.pexels.com/photos/8251117/pexels-photo-8251117.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "dark": "https://images.pexels.com/photos/8251117/pexels-photo-8251117.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "alt": "Flat lay of notebooks and stationery on a clean background"
+    },
+    "auth_bg": {
+      "url": "https://images.unsplash.com/photo-1487700160041-babef9c3cb55?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2MTJ8MHwxfHNlYXJjaHwxfHxjbGVhbiUyMG1pbmltYWxpc3QlMjBkZXNrJTIwcGxhbnR8ZW58MHx8fHwxNzg4MTIwNTI1fDA&ixlib=rb-4.1.0&q=85",
+      "dark": "https://images.unsplash.com/photo-1487700160041-babef9c3cb55?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2MTJ8MHwxfHNlYXJjaHwxfHxjbGVhbiUyMG1pbmltYWxpc3QlMjBkZXNrJTIwcGxhbnR8ZW58MHx8fHwxNzg4MTIwNTI1fDA&ixlib=rb-4.1.0&q=85",
+      "alt": "Green leafed plant on clear glass vase, clean minimalist aesthetic"
+    }
+  },
+  "instructions_to_main_agent": [
+    "PREMIUM REQUIREMENT: Use 'Space Grotesk' for display/numbers (amounts, balances, large keypad text) and 'Plus Jakarta Sans' for all text, labels, and body UI. This font pairing is essential for the finance vibe.",
+    "NO-TOLERANCE COLOR RULE: Absolutely no blues, purples, indigos, or oranges. Strict adherence to the provided Botanical/Emerald palette.",
+    "HERO CARD SCRIM: The Dashboard Hero card MUST stack 3 layers: Layer 0 (hero_card_bg image), Layer 1 (Vertical gradient scrim fading from 0% at top to 70%+ surfaceInverse at bottom), Layer 2 (Text/content). Never place text directly on the image without this scrim.",
+    "IMAGE PREFERENCE: Use the provided `empty_state` real image for empty states instead of basic system icons. It drastically elevates the production feel.",
+    "ADD EXPENSE FLOW: Implement Add Expense as a bottom sheet (using @gorhom/bottom-sheet). Feature an oversized amount input at the top and an 8-tile icon category grid below it (no dropdowns).",
+    "LAYOUT FINDING: Based on web research, prioritize 'charts before numbers'—place a quick visual donut chart summary immediately after the hero card on the dashboard.",
+    "Ensure max 2 glass surfaces per screen (e.g., sticky header and bottom tab bar). Apply glass to the FAB.",
+    "All data screens must explicitly implement the Loading, Empty, and Error states filling the full screen via flex: 1.",
+    "Ensure 'Admin Dashboard' is distinct but uses the same underlying utility layout components as Settings for managing users, categories, and expenses."
+  ]
+}
