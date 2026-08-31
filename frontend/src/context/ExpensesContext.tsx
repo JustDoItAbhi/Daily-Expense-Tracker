@@ -1,10 +1,11 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, ReactNode, useRef } from "react";
 import { Category, Expense } from "../types";
-import { DEMO_EXPENSES } from "../mock/seed";
-import { DEFAULT_CATEGORIES } from "../mock/categories";
 import { isSameDay } from "../utils/format";
 import { useAuth } from "./AuthContext";
+import { ExpenseRepository } from "../database/repositories/ExpenseRepository";
+import { CategoryRepository } from "../database/repositories/CategoryRepository";
+import { ensureSeed } from "../database/seed";
+import { preferencesStorage } from "../storage/preferencesStorage";
 
 interface ExpensesCtx {
   expenses: Expense[]; // for current user (or all if admin)
@@ -21,42 +22,6 @@ interface ExpensesCtx {
 }
 
 const Ctx = createContext<ExpensesCtx | undefined>(undefined);
-const EXP_KEY = "@expenses_all";
-const CAT_KEY = "@categories_all";
-
-async function loadAll(): Promise<Expense[]> {
-  const raw = await AsyncStorage.getItem(EXP_KEY);
-  if (raw) {
-    try {
-      return JSON.parse(raw) as Expense[];
-    } catch {
-      // ignore
-    }
-  }
-  await AsyncStorage.setItem(EXP_KEY, JSON.stringify(DEMO_EXPENSES));
-  return [...DEMO_EXPENSES];
-}
-
-async function saveAll(data: Expense[]) {
-  await AsyncStorage.setItem(EXP_KEY, JSON.stringify(data));
-}
-
-async function loadCats(): Promise<Category[]> {
-  const raw = await AsyncStorage.getItem(CAT_KEY);
-  if (raw) {
-    try {
-      return JSON.parse(raw) as Category[];
-    } catch {
-      // ignore
-    }
-  }
-  await AsyncStorage.setItem(CAT_KEY, JSON.stringify(DEFAULT_CATEGORIES));
-  return [...DEFAULT_CATEGORIES];
-}
-
-async function saveCats(data: Category[]) {
-  await AsyncStorage.setItem(CAT_KEY, JSON.stringify(data));
-}
 
 export function ExpensesProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
@@ -64,9 +29,22 @@ export function ExpensesProvider({ children }: { children: ReactNode }) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const deviceIdRef = useRef<string>("");
+
+  const refreshExpenses = useCallback(async () => {
+    setAllExpenses(await ExpenseRepository.getAll());
+  }, []);
+
+  const refreshCategories = useCallback(async () => {
+    setCategories(await CategoryRepository.getAll());
+  }, []);
+
   useEffect(() => {
     (async () => {
-      const [exp, cats] = await Promise.all([loadAll(), loadCats()]);
+      const deviceId = await preferencesStorage.getDeviceId();
+      deviceIdRef.current = deviceId;
+      await ensureSeed(deviceId);
+      const [exp, cats] = await Promise.all([ExpenseRepository.getAll(), CategoryRepository.getAll()]);
       setAllExpenses(exp);
       setCategories(cats);
       setLoading(false);
@@ -89,60 +67,44 @@ export function ExpensesProvider({ children }: { children: ReactNode }) {
 
   const addExpense: ExpensesCtx["addExpense"] = useCallback(async (payload) => {
     if (!user) throw new Error("Not authenticated");
-    const now = new Date().toISOString();
-    const item: Expense = {
-      id: `e_${Date.now()}`,
+    const created = await ExpenseRepository.create({
       userId: user.id,
       productName: payload.productName,
       amount: payload.amount,
       currency: payload.currency,
       categoryId: payload.categoryId,
       notes: payload.notes,
-      expenseDate: payload.expenseDate ?? now,
-      createdAt: now,
-    };
-    const next = [item, ...allExpenses];
-    setAllExpenses(next);
-    await saveAll(next);
-    return item;
-  }, [user, allExpenses]);
+      expenseDate: payload.expenseDate,
+      deviceId: deviceIdRef.current,
+    });
+    await refreshExpenses();
+    return created;
+  }, [user, refreshExpenses]);
 
   const updateExpense: ExpensesCtx["updateExpense"] = useCallback(async (id, patch) => {
-    const next = allExpenses.map((e) => (e.id === id ? { ...e, ...patch } : e));
-    setAllExpenses(next);
-    await saveAll(next);
-  }, [allExpenses]);
+    await ExpenseRepository.update(id, patch);
+    await refreshExpenses();
+  }, [refreshExpenses]);
 
   const deleteExpense: ExpensesCtx["deleteExpense"] = useCallback(async (id) => {
-    const next = allExpenses.filter((e) => e.id !== id);
-    setAllExpenses(next);
-    await saveAll(next);
-  }, [allExpenses]);
+    await ExpenseRepository.softDelete(id);
+    await refreshExpenses();
+  }, [refreshExpenses]);
 
   const addCategory: ExpensesCtx["addCategory"] = useCallback(async (name, icon, color) => {
-    const item: Category = {
-      id: `cat_${Date.now()}`,
-      name,
-      icon,
-      color,
-      active: true,
-    };
-    const next = [...categories, item];
-    setCategories(next);
-    await saveCats(next);
-  }, [categories]);
+    await CategoryRepository.create(name, icon, color);
+    await refreshCategories();
+  }, [refreshCategories]);
 
   const updateCategory: ExpensesCtx["updateCategory"] = useCallback(async (id, patch) => {
-    const next = categories.map((c) => (c.id === id ? { ...c, ...patch } : c));
-    setCategories(next);
-    await saveCats(next);
-  }, [categories]);
+    await CategoryRepository.update(id, patch);
+    await refreshCategories();
+  }, [refreshCategories]);
 
   const deleteCategory: ExpensesCtx["deleteCategory"] = useCallback(async (id) => {
-    const next = categories.filter((c) => c.id !== id);
-    setCategories(next);
-    await saveCats(next);
-  }, [categories]);
+    await CategoryRepository.softDelete(id);
+    await refreshCategories();
+  }, [refreshCategories]);
 
   const value = useMemo(
     () => ({
